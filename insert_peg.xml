@@ -1,0 +1,102 @@
+<mujoco model="planar manipulator">
+
+  <include file="./common/visual.xml"/>
+  <include file="./common/skybox.xml"/>
+  <include file="./common/materials.xml"/>
+  <asset>
+    <texture name="background" builtin="flat" type="2d" mark="random" markrgb="1 1 1" width="800" height="800" rgb1=".2 .3 .4"/>
+    <material name="background" texture="background" texrepeat="1 1" texuniform="true"/>
+  </asset>
+
+  <visual>
+    <map shadowclip=".5"/>
+    <quality shadowsize="2048"/>
+  </visual>>
+
+  <option timestep="0.001" cone="elliptic"/>
+
+  <default>
+    <geom friction=".7" solimp="0.9 0.97 0.001" solref=".005 1"/>
+    <joint solimplimit="0 0.99 0.01" solreflimit=".005 1"/>
+    <general ctrllimited="true"/>
+    <site size=".006 .006 .006" material="site" group="3"/>
+
+    <default class="arm">
+      <geom type="cylinder" material="self" mass="0.1"/>
+      <joint type="hinge" pos="0 0 0" axis="0 -1 0" limited="true"/>
+    </default>
+    <default class="object">
+      <geom material="self"/>
+    </default>
+    <default class="obstacle">
+      <geom material="decoration" friction="0"/>
+    </default>
+    <default class="ghost">
+      <geom material="target" contype="0" conaffinity="0"/>
+    </default>
+  </default>
+
+  <worldbody>
+    <!-- Arena -->
+    <light name="light" directional="true" diffuse=".6 .6 .6" pos="0 0 1" specular=".3 .3 .3"/>
+    <geom name="floor" type="plane" pos="0 0 0" size=".4 .2 10" material="grid"/>
+    <geom name="wall1" type="plane" pos="-.682843 0 .282843" size=".4 .2 10" material="grid" zaxis="1 0 1"/>
+    <geom name="wall2" type="plane" pos=".682843 0 .282843" size=".4 .2 10" material="grid" zaxis="-1 0 1"/>
+    <geom name="background" type="plane" pos="0 .2 .5" size="1 .5 10" material="background" zaxis="0 -1 0"/>
+    <camera name="fixed" pos="0 -16 .4" xyaxes="1 0 0 0 0 1" fovy="4"/>
+
+    <!-- Arm -->
+    <geom name="arm_root" type="cylinder" fromto="0 -.022 .4 0 .022 .4" size=".024"
+          material="decoration" contype="0" conaffinity="0"/>
+    <body name="upper_arm" pos="0 0 .4" childclass="arm">
+      <joint name="arm_root" damping="0" limited="false"/>
+      <geom  name="upper_arm"  size=".02" fromto="0 0 0 0 0 .18"/>
+      <body  name="middle_arm" pos="0 0 .18" childclass="arm">
+        <joint name="arm_shoulder" damping="0" range="-170 170"/>
+        <geom  name="middle_arm"  size=".015" fromto="0 0 0 0 0 .15"/>
+        <body  name="lower_arm" pos="0 0 .15">
+            <joint name="arm_wrist" damping="0" range="-160 160" />
+            <geom name="blade" type="cylinder" size=".005" fromto="0 0 0 0 0 .113"/>
+            <geom name="guard" type="cylinder" size=".005" fromto="-.017 0 .043 .017 0 .043" mass="0"/>
+            <body name="pommel" pos="0 0 .113">
+              <camera name="peg_frame" pos="0 -.3 0" xyaxes="1 0 0 0 0 1" mode="track"/>
+            </body>
+            <site name="peg_tip"   type="box" pos="0 0 .113"/>
+            <site name="peg" type="box" pos="0 0 .063"/>
+        </body>
+      </body>
+    </body>
+
+    <!-- receptacles -->
+    <body name="slot" pos="0.25 0 0.3" euler="0 0 0" childclass="obstacle">
+      <geom name="slot_0" type="box" pos="-.0252 0 -.083" size=".0198 .01 .035"/>
+      <geom name="slot_1" type="box" pos=" .0252 0 -.083" size=".0198 .01 .035"/>
+      <geom name="slot_2" type="box" pos="  0   0 -.138" size=".045 .01 .02"/>
+      <site name="slot" type="box" pos="0 0 0"/>
+      <site name="slot_end" type="box" pos="0 0 -.05"/>
+    </body>
+
+    <!-- targets -->
+    <body name="target_peg" pos="0.25 .001 0.3" childclass="ghost">
+      <geom name="target_blade" type="capsule" size=".005" fromto="0 0 -.013 0 0 -.113"/>
+      <geom name="target_guard" type="capsule" size=".005" fromto="-.017 0 -.043 .017 0 -.043"/>
+      <geom name="target_pommel" type="sphere" size=".009" pos="0 0 -.013"/>
+      <site name="target_peg" type="box" pos="0 0 -.063"/>
+      <site name="target_peg_pinch" type="box" pos="0 0 -.025"/>
+      <site name="target_peg_grasp" type="box" pos="0 0 0"/>
+      <site name="target_peg_tip"   type="box" pos="0 0 -.113"/>
+    </body>
+
+  </worldbody>
+
+  <sensor>
+    <touch name="peg_tip_touch" site="peg_tip"/>
+  </sensor>
+
+  <actuator>
+    <motor name="root"     joint="arm_root"     ctrlrange="-12 12"  gear="1"/>
+    <motor name="shoulder" joint="arm_shoulder" ctrlrange="-12 12"  gear="1"/>
+    <motor name="wrist"    joint="arm_wrist"    ctrlrange="-12 12"  gear="1"/>
+  </actuator>
+
+</mujoco>
