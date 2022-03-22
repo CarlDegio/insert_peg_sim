@@ -4,7 +4,7 @@
 
 ## 环境&运行
 
-mujoco，dm_control（在mujoco200的版本下开发，210应该也可以使用），py-opencv（用于显示仿真中的相机画面）。
+mujoco，dm_control（在mujoco200的版本下开发，已验证dm_control1.0.0-mujoco212下也可以使用），py-opencv（用于显示仿真中的相机画面）。
 
 运行main.py即可经由Torque.torque_calc函数控制末端位姿，能够通过cv2显示相机图像，通过time_step内的observation读取关节角度等信息。
 
