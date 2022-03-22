@@ -43,8 +43,8 @@ class Physics(mujoco.Physics):
         else:
             return pos
 
-    def touch(self):
-        return np.log1p(self.data.sensordata)
+    def force_torque(self):
+        return self.named.data.sensordata['peg_force']  # contact force
 
     def site_distance(self, site1, site2):
         site1_to_site2 = np.diff(self.named.data.site_xpos[[site2, site1]], axis=0)
@@ -145,7 +145,7 @@ class Bring(base.Task):
         obs = collections.OrderedDict()
         obs['arm_pos'] = physics.bounded_joint_pos(_ARM_JOINTS)
         obs['arm_vel'] = physics.joint_vel(_ARM_JOINTS)
-        obs['touch'] = physics.touch()
+        obs['force_torque'] = physics.force_torque()
         return obs
 
     def _is_close(self, distance):

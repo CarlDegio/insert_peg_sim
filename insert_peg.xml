@@ -54,15 +54,16 @@
       <body  name="middle_arm" pos="0 0 .18" childclass="arm">
         <joint name="arm_shoulder" damping="0" range="-170 170"/>
         <geom  name="middle_arm"  size=".015" fromto="0 0 0 0 0 .15"/>
-        <body  name="lower_arm" pos="0 0 .15">
+        <body  name="lower_arm" pos="0 0 .15" childclass="arm">
             <joint name="arm_wrist" damping="0" range="-160 160" />
             <geom name="blade" type="cylinder" size=".005" fromto="0 0 0 0 0 .113"/>
-            <geom name="guard" type="cylinder" size=".005" fromto="-.017 0 .043 .017 0 .043" mass="0"/>
+            <geom name="guard" type="capsule" size=".005" fromto="-.017 0 .043 .017 0 .043" mass="0"/>
             <body name="pommel" pos="0 0 .113">
+              <site name="peg" type="box"/>
+              <geom name="touch_point" type="sphere" size=".005" pos="0 0 0" mass="1e-6"/>
               <camera name="peg_frame" pos="0 -.3 0" xyaxes="1 0 0 0 0 1" mode="track"/>
             </body>
             <site name="peg_tip"   type="box" pos="0 0 .113"/>
-            <site name="peg" type="box" pos="0 0 .063"/>
         </body>
       </body>
     </body>
@@ -90,7 +91,7 @@
   </worldbody>
 
   <sensor>
-    <touch name="peg_tip_touch" site="peg_tip"/>
+    <force name="peg_force" site="peg"/>
   </sensor>
 
   <actuator>
